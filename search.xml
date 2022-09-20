@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>Alternative Input Signals Ease Transfer in Multilingual Machine Translation</title>
+      <link href="/2022/09/19/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/"/>
+      <url>/2022/09/19/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Alternative-Input-Signals-Ease-Transfer-in-Multilingual-Machine-Translation"><a href="#Alternative-Input-Signals-Ease-Transfer-in-Multilingual-Machine-Translation" class="headerlink" title="Alternative Input Signals Ease Transfer in Multilingual Machine Translation"></a>Alternative Input Signals Ease Transfer in Multilingual Machine Translation</h1><h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>MMT对低资源语言来说很有用，因为在模型可以利用不同语言的相似性和不同语言之间的共享信息来提高低资源语言的翻译效果。对于不同语言的共享信息这一点来说，最基本的就是两个语言之间的重叠tokens,这些tokens通常含有相同的含义，低资源语言的翻译能借鉴模型中存储的高资源语言的信息。如果语言间的重叠很少：例如只有标点符号和数字，那么就没办法有效利用这部分信息。此外，如果两种语言处于不同书写的字体系统时，重叠也会很少。</p><h2 id="语言共享信息方法"><a href="#语言共享信息方法" class="headerlink" title="语言共享信息方法"></a>语言共享信息方法</h2><p>为了解决由于不同书写系统（<code>scripts</code>、<code>writting systems</code>）引起的不同语言之间的重叠太少问题，作者提出了以下三种信号转化方法（<code>transliteration</code>、<code>signal system</code>）</p><h3 id="国际音标法"><a href="#国际音标法" class="headerlink" title="国际音标法"></a>国际音标法</h3><p>很多语言中的许多词发音是相同的，但是在不同的书写系统来看他们是完全不重叠的。因此为了运用这部分重叠的信息，将文本通过国际音标转为音标文本，其中音标的单位是音素。当然这种方法也会引入噪声，例如：</p><ol><li>标点符号可能在转化过程中丢失（或许可以标记增加断句信息？）</li><li>对于一种语言来说不同词可能会发相同的音，但是是完全的不同字形。</li><li>一个字可能还有不同发音，不同发音的意思不同（<strong>个人想法</strong>）</li></ol><h3 id="罗马化法"><a href="#罗马化法" class="headerlink" title="罗马化法"></a>罗马化法</h3><p>在现代化过程中，很多语言都能通过键盘上的26个字母输入到电脑中，因此语言或多或少具有这种罗马形式（例如汉字拼音）。</p><h3 id="转化为其他语言字体法"><a href="#转化为其他语言字体法" class="headerlink" title="转化为其他语言字体法"></a>转化为其他语言字体法</h3><p>之前两种方式会增加模型需要学习的语言表示量，并且词汇表也要相应扩充。这种方法是将一种语言转化为同源语言族中一种语言，这样也不需要提前学习subword等。</p><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>利用这三种方法不需要额外的模型，例如第一种方法可以直接使用音标对齐直接转化（可以利用工具包<code>espkea-ng</code>），第二种方法可以使用工具包<code>indic-trans</code>，第三种可以用字母表对齐实现(手动实现)。</p><h2 id="多种转化后的信号融合"><a href="#多种转化后的信号融合" class="headerlink" title="多种转化后的信号融合"></a>多种转化后的信号融合</h2><h3 id="Straight-Concatenation"><a href="#Straight-Concatenation" class="headerlink" title="Straight Concatenation"></a>Straight Concatenation</h3><p>简单，不需要改变模型架构，使用特殊的tokens分隔不同输入，代价是句子长的话就需要更多的计算。</p><h3 id="Multi-Encoder-Architectures"><a href="#Multi-Encoder-Architectures" class="headerlink" title="Multi-Encoder Architectures"></a>Multi-Encoder Architectures</h3><p>为每个信号准备一个Encoder，也就是多个Encoder,一个decoder模型，多个encoder组合方式不同，主要有4种（<a href="https://arxiv.org/abs/1811.04716v1">Libovick ́ y et al. (2018)</a>），对应的encoder-decoder attention（cross attention）也有不同形式。<strong>虽然之前证明有效，但是还是需要更巧妙的模型设计才能达到更好的性能</strong></p><h3 id="Multi-Source-Ensemble"><a href="#Multi-Source-Ensemble" class="headerlink" title="Multi-Source Ensemble"></a>Multi-Source Ensemble</h3><p>多个模型，不同模型除了输入信号不同其他都相同，最后将每个模型输出的概率分布平均。缺点：超多计算。</p><h3 id="Multi-Source-Self-Ensemble"><a href="#Multi-Source-Self-Ensemble" class="headerlink" title="Multi-Source Self-Ensemble"></a>Multi-Source Self-Ensemble</h3><p>借鉴了集成多种信号的优点，但是只需要训练一个模型。对于一个句子来说，转为不同信号，每个信号前面加上特定的token，重复经过模型得到概率分布，最后将概率分布平均。<br><a href="/img/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/1.jpg">模型结构图</a></p><h2 id="实验分析"><a href="#实验分析" class="headerlink" title="实验分析"></a>实验分析</h2><p>翻译方向为<code>XX-&gt;EN</code>，语言族：<code>Indic,Turkic</code><br><a href="/img/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/2.jpg">模型结构图</a><br>对于<strong>多源自集成</strong>来说：</p><ol><li>单独的转化后的信号不会使得BLEU提升，甚至有些下降。原因是引入的干扰大于有效信息。</li><li>单独的转化后的信号和原始信号一起输入会使得BLEU提升，但是最多在1.0左右</li><li>将encoder参数量提升一倍，BLEU的值提升1.3。</li></ol><h3 id="多源自集成优势"><a href="#多源自集成优势" class="headerlink" title="多源自集成优势"></a>多源自集成优势</h3><ol><li>seq2seq模型架构不需要做改变</li><li>在低资源语料的情况下，比基线水平的BLEU提升更大达到5.0。并且随着数据集大小增大始终优于基线水平。</li><li>生成的假设较为一致，作者提出的C-BLEU更好（We treat the output of L1-En direction as reference and out-put of all other Li-En directions as hypothesis. We compute this for all N source languages in the dataset, accounting for total N (N − 1) C-BLEU scores, then take the average of all）</li><li>生成的句子使用NER去抽取实体，不同类别的实体识别的效果都优于基线。表明生成句子更准确。</li></ol><p><img src="/img/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/3.jpg" alt="第二点"><br><img src="/img/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/4.jpg" alt="第三点"></p><h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>作者为了解决不同语言之间信息重叠过少的问题，提出了三种不同的信号转化方式和多源自集成方法使得翻译性能提升，准确性也有提升。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 机器翻译 </tag>
+            
+            <tag> 多语言机器翻译 </tag>
+            
+            <tag> 自然语言处理 </tag>
+            
+            <tag> 论文阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?</title>
+      <link href="/2022/09/19/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/"/>
+      <url>/2022/09/19/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Pre-Trained-Multilingual-Sequence-to-Sequence-Models-A-Hope-for-Low-Resource-Language-Translation"><a href="#Pre-Trained-Multilingual-Sequence-to-Sequence-Models-A-Hope-for-Low-Resource-Language-Translation" class="headerlink" title="Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?"></a>Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>该篇论文主要以mBART(一种预训练端到端多语言模型)为模型架构探索数据集对性能的影响，也形成了一种衡量模型的数据敏感性的框架，经过实验，文章提出的一个结论是<strong>与其想着怎么微调模型，还不如从数据上改进以更大提升表现，增强实用性。</strong></p><p>PMSS(预训练端到端多语言模型)<strong>数据集敏感性</strong>可探究的几个方面：</p><ul><li>微调训练时所需的数据量</li><li>微调数据集中的噪声</li><li>预训练数据集数量</li><li>领域不匹配问题</li><li>语言类型问题</li></ul><h3 id="mBART模型介绍"><a href="#mBART模型介绍" class="headerlink" title="mBART模型介绍"></a>mBART模型介绍</h3><p>首先这是一个纯用Transformer架构的预训练模型，预训练数据是Common Crawl,具有多种语言的文本数据。mBART的预训练目标是单语形式的，将原句子一定程度上破坏之后使用模型重建这个句子。这种目标函数比较有意思，它不引导模型产生相似的tokens或者representations。（<strong>疑问点，待续</strong>）在经过预训练后可以有监督或者直接进行翻译训练、预测。</p><h2 id="实验部分"><a href="#实验部分" class="headerlink" title="实验部分"></a>实验部分</h2><h3 id="评测语言选择"><a href="#评测语言选择" class="headerlink" title="评测语言选择"></a>评测语言选择</h3><p>文章选了10种语言，8种低资源语言和2种高资源语言（FR,HI）。在字体方面也有分类，主要为Latin和非Latin。在未知语言上也有分类，有4种语言是mBART在预训练未接触过的。具体统计如下图：<br><img src="/img/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/2.jpg" alt="评测语言的具体信息,Joshi class用来划分资源高低，大于3算高资源语言"></p><h3 id="平行语料"><a href="#平行语料" class="headerlink" title="平行语料"></a>平行语料</h3><p>语料选择上既有Common Crawl（数量大、开放域、使用自动对齐上可能有噪声）、Bible等。包括开放域和领域特定的语料、并且将训练数据按照数量大小进行切割以进行下一步实验。<br><img src="/img/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/3.jpg" alt="语料具体信息"></p><h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><p>实验以EN-&gt;XX和XX-&gt;EN为翻译方向。每个语言有3个测试集（2个特定域，FLORES是开放域），分别使用不同数量、不同类型的数据集进行微调训练得到结果。</p><p><img src="/img/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/4.jpg" alt="实验结果1"></p><p><img src="/img/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/5.jpg" alt="实验结果2"></p><h3 id="实验分析"><a href="#实验分析" class="headerlink" title="实验分析"></a>实验分析</h3><h4 id="微调训练时所需的数据量"><a href="#微调训练时所需的数据量" class="headerlink" title="微调训练时所需的数据量"></a>微调训练时所需的数据量</h4><ol><li>使用Common Crawl（开放域）,mBART模型使用25k的数据在性能上远超用100k数据的transformer模型，这在大多数语言上都得到验证，也有一两个低资源语言两者的表现都很不好。（test时候语言是预训练时就接触到的模型）</li><li>使用特定域的数据进行微调，结果也是mBART优于transformer。</li><li>微调训练的句子对数将在<code>50k</code>左右达到一个饱和，数量加大的话会导致预训练的参数改变过多，预训练保留的信息被冲掉，（mBART是标准Transformer架构，参数量约<code>680M</code>，预训练语料远大于50k）</li></ol><h4 id="微调数据集中的噪声"><a href="#微调数据集中的噪声" class="headerlink" title="微调数据集中的噪声"></a>微调数据集中的噪声</h4><p>这里噪声指的是是否和领域相关的数据。根据实验结果表明，mBART微调时相同领域的训练数据只需要开放域训练数据量的十分之一就能达到更好的效果。</p><h4 id="预训练数据集数量"><a href="#预训练数据集数量" class="headerlink" title="预训练数据集数量"></a>预训练数据集数量</h4><p><strong>mBART模型比transfomer进步的地方在于性能提升上，高资源语言更显著</strong>，个人认为句法结构和词语的多样性对于数据集来说很重要，因为模型的可拓展能力可能不够，没办法像人一样举一反三。那对应语料的数据量越大涵盖的词语和句子更多变，使得模型能够更好的将语言特征通过预训练保存到参数中，反过来说mBART确实能够很好利用预训练学习到，因为观察出了不同语言的差异。<br><img src="/img/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/6.jpg" alt="预训练语料中语言的数量和实验的BLEU值关系"></p><h4 id="领域不匹配问题"><a href="#领域不匹配问题" class="headerlink" title="领域不匹配问题"></a>领域不匹配问题</h4><ol><li>领域相同的训练集和测试集效果要比不匹配的情况好。</li><li>开放域训练的模型可能在特定领域的测试集上表现得比开放域数据集好。</li><li>预训练数据越大越能在特定域数据集上表现出色，可以弥补特定域数据集不足的问题。</li></ol><h4 id="语言类型问题"><a href="#语言类型问题" class="headerlink" title="语言类型问题"></a>语言类型问题</h4><ol><li>如果一个低资源语言和目标语言有较多的token片段重叠或者相似的句法特征（主谓宾顺序、辅音突变等语法现象），那么在翻译的时候就可以得到更好的结果。</li><li><strong>翻译成英语总比英语翻译成其他语言的BLEU要好</strong>。这可以说是decoder更好地学到了英语这个语言，也有可能是由于BLEU不将子词纳入计算范围，这导致有些词素是对的但是整个词错了，从而导致翻译成其他语言的BLEU值不高。</li></ol><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol><li>对于开放域的翻译来说，mBART比原始transformers架构只需要更少的微调数据就能达到更好的效果（<code>4-10倍</code>）</li><li>对于特定域的翻译来说，mBART数据量有效性为<code>5-10倍</code>,并且同时也更鲁棒，在领域外表现更好。</li><li>对于预训练数据集中没有出现的语言来说，BLEU表现非常差劲基本用不了。</li></ol><p>对于标题给出的疑问，PMSS能不能改善低语言资源，作者的回答是<strong>与其想着怎么微调模型，还不如想想怎么为低资源数据收集更多更好的训练句子</strong>（寄，不知道后面有无后续PMSS的文章）</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 机器翻译 </tag>
+            
+            <tag> 多语言机器翻译 </tag>
+            
+            <tag> 自然语言处理 </tag>
+            
+            <tag> 论文阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>wandb在fairseq的使用</title>
       <link href="/2022/09/04/wandb/"/>
       <url>/2022/09/04/wandb/</url>
