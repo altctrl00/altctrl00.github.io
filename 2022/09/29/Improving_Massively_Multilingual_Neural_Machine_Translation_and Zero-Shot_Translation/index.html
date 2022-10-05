@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Improving Massively Multilingual Neural Machine Translation and Zero-Shot Translation | 樱岛何处有麻衣</title><meta name="keywords" content="机器翻译,多语言机器翻译,自然语言处理,论文阅读"><meta name="author" content="Endorphin"><meta name="copyright" content="Endorphin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="zero-shot的off-target问题，可以通过回译扩展数据的方法大大改进。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Improving Massively Multilingual Neural Machine Translation and Zero-Shot Translation">
+<meta property="og:url" content="http://example.com/2022/09/29/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/index.html">
+<meta property="og:site_name" content="樱岛何处有麻衣">
+<meta property="og:description" content="zero-shot的off-target问题，可以通过回译扩展数据的方法大大改进。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/5.jpg">
+<meta property="article:published_time" content="2022-09-29T13:00:00.000Z">
+<meta property="article:modified_time" content="2022-10-05T02:29:08.709Z">
+<meta property="article:author" content="Endorphin">
+<meta property="article:tag" content="机器翻译">
+<meta property="article:tag" content="多语言机器翻译">
+<meta property="article:tag" content="自然语言处理">
+<meta property="article:tag" content="论文阅读">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/5.jpg"><link rel="shortcut icon" href="/img/cat.png"><link rel="canonical" href="http://example.com/2022/09/29/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxxxxx"/><meta name="baidu-site-verification" content="xxxxxxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Improving Massively Multilingual Neural Machine Translation and Zero-Shot Translation',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2022-10-05 10:29:08'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mouse.css"><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/6.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">樱岛何处有麻衣</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Improving Massively Multilingual Neural Machine Translation and Zero-Shot Translation</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-09-29T13:00:00.000Z" title="发表于 2022-09-29 21:00:00">2022-09-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-05T02:29:08.709Z" title="更新于 2022-10-05 10:29:08">2022-10-05</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Improving Massively Multilingual Neural Machine Translation and Zero-Shot Translation"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="前人工作"><a href="#前人工作" class="headerlink" title="前人工作"></a>前人工作</h2><ul>
+<li>之前的工作要么对于一对多翻译使用共享的encoder，对于多对多翻译使用特殊的attention机制，对于多对一翻译使用基于字符的输入，这些方法需要为每种语言精心设计encoder/decoder，限制模型扩展性。</li>
+<li>后来有方法使用单一模型完成多语言翻译，但是这种方法将语言转化至同一空间，忽视语言特性。<ul>
+<li>有方法尝试重组参数共享(reorganizing parameter sharing)</li>
+<li>设计语言特异的参数生成器（designing language-specific parameter generators）</li>
+<li>解耦多语言编码（decoupling multilingual word encodings）</li>
+<li>语言聚类（language clustering）</li>
+</ul>
+</li>
+<li>对于off-target的问题，有两种解决方法，一是引入跨语言正则化器（cross regularizers），例如alignment regularizer和consistency regularizer。二是通过回译产生平行语料（backtranslation），或者通过中间语言翻译（Pivot）</li>
+</ul>
+<h2 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h2><ol>
+<li>以一种更加便捷的、端到端的language specific方法，以及深化NMT网络来缓解模型容量问题；</li>
+<li>采用随机在线backtranslation(ROBT)来缓解zero-shot translation中的off-target问题。</li>
+</ol>
+<h2 id="具体提出的方法"><a href="#具体提出的方法" class="headerlink" title="具体提出的方法"></a>具体提出的方法</h2><ol>
+<li>更深的网络模型，使用the depth-scaled initialization method去训练模型。</li>
+<li>(<strong>LALN</strong>)对于每个目标语言，使用前置token作为正则化的偏置<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/1.jpg" alt="language-aware layer normalization(LALN)"></li>
+<li>(<strong>LALT</strong>)对于encoder端的输出，再接一个d*d的投影<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/2.jpg" alt="Language-aware Linear Transformation(LALT)"></li>
+<li>(<strong>ROBt</strong>)首先训练一个多语言模型，再对此模型微调，对于每个batch里的每个平行语句对（x1,y1）来说，随机选取语言集T,将y1翻译到T中，形成新的平行语句对（x2,y1）,(x3,y1)…..再去更新模型参数。<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/3.jpg" alt="Random Online Backtranslation"></li>
+</ol>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="训练设置"><a href="#训练设置" class="headerlink" title="训练设置"></a>训练设置</h3><p>&emsp;&emsp;使用作者提出的<code>OPUS-100</code>训练集。总共包含了100种语言。由于是english-centric的，一共包含了99种language pair，一共有大约55M的训练样本，对于每一种language pair，都有2000条验证、测试数据。<br>另外，在zero-shot translation设置中，总共包含Arabic、Chinese、Dutch、French、German、Russian6个语种，共15个语言对。</p>
+<h4 id="One-to-Many-translation"><a href="#One-to-Many-translation" class="headerlink" title="One-to-Many translation"></a>One-to-Many translation</h4><p>&emsp;&emsp;99个EN-&gt;X语言对上训练，得到的结论:</p>
+<ol>
+<li>LALT/LALN是有效的，表明丰富语言知觉(language awareness)能够减轻模型容量不足的缺点。</li>
+<li>越深的模型越好<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/4.jpg" alt="One-to-Many translation"></li>
+</ol>
+<h4 id="Many-to-Many-translation"><a href="#Many-to-Many-translation" class="headerlink" title="Many-to-Many translation"></a>Many-to-Many translation</h4><p>&emsp;&emsp;使用english-centric的语料共99*2个方向进行训练，再分别在EN-&gt;X、X-&gt;EN上评估。得到的几点结论：</p>
+<ol>
+<li>在EN-&gt;X翻译上，多对多训练设置比一对多训练设置的表现来的差。可能的原因是模型容纳了更多的翻译方向，model capacity问题更明显。（table 2,3的Transformer行）</li>
+<li>在X-&gt;EN翻译上，多对多训练设置比双语基线的表现来的好，说明多对多的训练设置，模型有较好的迁移能力。（table 4的1,2行）</li>
+<li>在多对多翻译设置下。X-&gt;EN的提升要大于EN-&gt;X。这可能因为翻译方向上数据的分布不均，因为一半的数据都是-&gt;EN。</li>
+<li>LALT/LALN更偏向于目标语言的区分，因此对于EN-&gt;X提升大于X-&gt;EN<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/5.jpg" alt="Many-to-Many translation"></li>
+</ol>
+<h4 id="多对多翻译设置对不同资源语言的增益"><a href="#多对多翻译设置对不同资源语言的增益" class="headerlink" title="多对多翻译设置对不同资源语言的增益"></a>多对多翻译设置对不同资源语言的增益</h4><p>&emsp;&emsp;不同语言对的句子数量是不一样的，这会影响到language-aware建模和更深的Transformer翻译。因此作者根据训练数据大小将测试语言对划分为三种形式，High (≥ 0.9M, 45), Low (&lt; 0.1M, 18) and Medium (others, 31)，得到以下结论</p>
+<ol>
+<li>对于低资源语言来说，作者提出的方法在EN-&gt;X的翻译提升大于X-&gt;EN。</li>
+<li>模型越深对于不同资源类型的语言和不同翻译方向上都更好。<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/6.jpg" alt="不同规模训练语料"></li>
+</ol>
+<h4 id="在Zero-shot上的结果"><a href="#在Zero-shot上的结果" class="headerlink" title="在Zero-shot上的结果"></a>在Zero-shot上的结果</h4><p>&emsp;&emsp;之前的工作发现在多语言模型上进行zero-shot翻译也即未在训练集出现的翻译方向上表现很差，作者经过实验得到以下结论：</p>
+<ol>
+<li>模型容量不是表现差的主要原因，增大模型容量的性能提升也很少（第2,6行）</li>
+<li>zero-shot上结果很差的主要原因是off-target问题。</li>
+<li>使用ROBt方法在zero-shot上会有更大的提升，并且off-target问题得到改善。但同时在非zero-shot上也有性能微降（<strong>在其他论文中也发现了这个问题</strong>）<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/7.jpg" alt="在Zero-shot上的结果"></li>
+</ol>
+<h4 id="ROBt的探究"><a href="#ROBt的探究" class="headerlink" title="ROBt的探究"></a>ROBt的探究</h4><ol>
+<li>ROBt能够加快模型收敛，在几千步就完成。<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/8.jpg" alt="ROBt收敛"></li>
+<li>选择ROBt中的语言集合很关键，缩小集合范围能少量提升性能。<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/9.jpg" alt="集合选择"></li>
+</ol>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>&emsp;&emsp;作者为了解决多语言模型容量的问题使用了更深的模型架构和语言感知的模型（language-aware），并且提出random online backtranslation algorithm（ROBt）以解决zero-shot中的off-target问题。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Endorphin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/09/29/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/">http://example.com/2022/09/29/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">樱岛何处有麻衣</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91/">机器翻译</a><a class="post-meta__tags" href="/tags/%E5%A4%9A%E8%AF%AD%E8%A8%80%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91/">多语言机器翻译</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><a class="post-meta__tags" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a></div><div class="post_share"><div class="social-share" data-image="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/5.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.JPG" target="_blank"><img class="post-qr-code-img" src="/img/alipay.JPG" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/09/19/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/" title="Alternative Input Signals Ease Transfer in Multilingual Machine Translation"><img class="cover" src="/img/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/1.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-19</div><div class="title">Alternative Input Signals Ease Transfer in Multilingual Machine Translation</div></div></a></div><div><a href="/2022/09/19/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/" title="Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?"><img class="cover" src="/img/cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-19</div><div class="title">Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?</div></div></a></div><div><a href="/2022/09/19/Breaking_Down_Multilingual_Machine_Translation/" title="Breaking Down Multilingual Machine Translation"><img class="cover" src="/img/cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-19</div><div class="title">Breaking Down Multilingual Machine Translation</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E4%BA%BA%E5%B7%A5%E4%BD%9C"><span class="toc-number">1.</span> <span class="toc-text">前人工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%B4%A1%E7%8C%AE"><span class="toc-number">2.</span> <span class="toc-text">主要贡献</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E6%8F%90%E5%87%BA%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">具体提出的方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-number">4.</span> <span class="toc-text">实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83%E8%AE%BE%E7%BD%AE"><span class="toc-number">4.1.</span> <span class="toc-text">训练设置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#One-to-Many-translation"><span class="toc-number">4.1.1.</span> <span class="toc-text">One-to-Many translation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Many-to-Many-translation"><span class="toc-number">4.1.2.</span> <span class="toc-text">Many-to-Many translation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E5%AF%B9%E5%A4%9A%E7%BF%BB%E8%AF%91%E8%AE%BE%E7%BD%AE%E5%AF%B9%E4%B8%8D%E5%90%8C%E8%B5%84%E6%BA%90%E8%AF%AD%E8%A8%80%E7%9A%84%E5%A2%9E%E7%9B%8A"><span class="toc-number">4.1.3.</span> <span class="toc-text">多对多翻译设置对不同资源语言的增益</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%A8Zero-shot%E4%B8%8A%E7%9A%84%E7%BB%93%E6%9E%9C"><span class="toc-number">4.1.4.</span> <span class="toc-text">在Zero-shot上的结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ROBt%E7%9A%84%E6%8E%A2%E7%A9%B6"><span class="toc-number">4.1.5.</span> <span class="toc-text">ROBt的探究</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/img/6.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 By Endorphin</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><script id="canvas_nest" defer="defer" color="254,143,143" opacity="1" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":190,"height":380,"hOffset":-8,"vOffset":-14},"mobile":{"show":true},"react":{"opacity":0.9},"log":false});</script></body></html>

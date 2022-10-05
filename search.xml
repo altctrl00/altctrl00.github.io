@@ -4,6 +4,106 @@
   
     
     <entry>
+      <title>Multilingual Neural Machine Translation with Deep Encoder and Multiple Shallow Decoders</title>
+      <link href="/2022/09/29/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/"/>
+      <url>/2022/09/29/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/</url>
+      
+        <content type="html"><![CDATA[<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>&emsp;&emsp;目前很多多语言翻译的模型使用的是<code>encoder-decoder</code>模型，如果加深两端的网络深度可以提高翻译的性能。举例子来说，在<code>many-to-one</code>的翻译设置中增加<code>encoder</code>的深度会提高翻译质量，可能的解释是<strong>encoder</strong>端的参数体量大了能记住更多的源语言特征。但是对<code>one-to-many</code>来说，增加<strong>decoder</strong>端的参数会使得推理变慢。因此在这里就会有一个网络深度和模型性能、推理速度的权衡设计。之前的论文<a href="https://arxiv.org/abs/2006.10369v1">Deep encoder, shallow decoder: Reevaluating the speed-quality tradeoff in machine translation.</a>提出了一种基于Transformer的模型——<strong>a deep encoder and a shallow decoder (DESD)</strong>。但这在<code>one-to-many</code>中会使得性能下降，可能是因为decoder端参数不足以为多个目标语言建模。因此为了能又快又准翻译，作者使用<strong>multiple shallow decoders</strong>，每个decoder对应于一类目标语言。其中作者探索了多种decoder-目标语言对应关系。</p><h3 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h3><ol><li>设置多种不同层数的<strong>DESD</strong>模型方案，在双语翻译和多语言翻译任务中权衡比较翻译速度(tokens/每秒)和准确性（BLEU）。</li><li>在<code>many-to-one</code>翻译中，<strong>多语言DESD</strong>模型以<strong>1.8x</strong>更快的平均推理加速比得到与基线模型同等的表现（模型参数量相当）</li><li>在<code>one-to-many</code>翻译中，提出了<strong>shared encoder and multiple shallow decoders(DEMSD)</strong>，得到<strong>1.8x</strong>更快的平均推理加速比，并且翻译质量更好。</li></ol><h2 id="多语言DESD模型的翻译速度和性能权衡"><a href="#多语言DESD模型的翻译速度和性能权衡" class="headerlink" title="多语言DESD模型的翻译速度和性能权衡"></a>多语言DESD模型的翻译速度和性能权衡</h2><h3 id="语料集"><a href="#语料集" class="headerlink" title="语料集"></a>语料集</h3><ol><li>ML50，49种语言&lt;-&gt;英语，两亿句子对。</li><li>TED8-Related，4种低资源语言，4种高资源语言。其中可以分为4个语言族，每个族2种语言</li><li>TED8-Diverse，8种语言，不考虑语言之间相关性。<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/1.jpg" alt="在三个数据集上的speed-quality trade-off,在三个数据集上训练过程相同"></li><li><strong>多于多对一翻译来说，减少了decoder端的层数其实对性能没有多大影响。这就说明其实对于decoder端，建模学习一种目标语言所需要参数量是很少的，也有可能是因为deep decoder更好地学习到了源语言，给出了更鲁棒的中间表示。</strong></li><li><strong>对于一对多翻译来说，当decoder端层数减少时性能会有明显下降。尤其是只有一两层时，在三个数据集上都是如此的趋势。这说明decoder端的参数量要和目标语言数量匹配（好奇1-11，2-10这样的层会是怎么样的效果）</strong></li><li>一对多翻译的结果其实都是远不如多对一，这可能和参数量无关，而是需要一种更有效的模型架构将一映射到多。（个人看法）</li></ol><h2 id="Deep-Encoder-and-Multiple-Shallow-Decoders（DEMSD）"><a href="#Deep-Encoder-and-Multiple-Shallow-Decoders（DEMSD）" class="headerlink" title="Deep Encoder and Multiple Shallow Decoders（DEMSD）"></a>Deep Encoder and Multiple Shallow Decoders（DEMSD）</h2><p>&emsp;&emsp;既要保持推理速度比较快又要性能比较高的话，前者一定要求decoder端层数少，后者可以减少decoder端所要表示的语言数量。<strong>有一种方法就是对于不同语言集对应一个shallow decoder</strong>。作者讨论了以下几种对应方法：</p><ol><li>最简单的放法就是每种语言一个decoder，<strong>(EACH)</strong></li><li>随机语言集合划分到一个decoder，每个decoder的语言集合大小相同，作者随机取三次求平均。<strong>(RAND)</strong></li><li>根据语言特征，每种语系一个decoder。<strong>（FAM）</strong></li><li>使用经典前置token的方法，将训练好的模型前置token抽取出来，每个token对应一种语言，根据token将语言分类(<strong>聚类？</strong>)，然后为每一类语言分配一个decoder。<strong>（EMB）</strong></li><li>上一种方法的缺点是需要预训练一个模型，然后再找这种对应关系，比较繁琐。希望寻找一种方法能够再训练过程中自动分配。<strong>(ST)</strong></li></ol><p>&emsp;&emsp;第5点的数学说明：在给定一个共享的encocder,$E$和N个decoders,$D=[D_1,D_2,…,D_N]$。对于一个源语言$L$，模型要先找到对应的一个decoder,$D_i$。再通过这个解码器得到解码预测的句子。整体的概率公式为$\log p(y|x,E,D_i)$,$y,x$分别是输出输入的句子。那么怎么找到对应的序号$i$呢？通过对语言$L$对应在模型中的具体向量$L_e$和decoder的条件概率建模。也即对于给定$L_e$，选择条件概率最大的decoder。公式为$i={\arg\max}_j\ p(j|L_e)$。希望模型能够学习到给定$L_e$，每个decoder的概率分布。但是因为argmax目前的形式是不可微的，也就无法求导更新参数。因此使用<code>Gumble-Softmax</code>作为argmax的一种可微形式。<br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/2.jpg" alt="Gimble-Softmax具体形式，其中l是已经对数化了的，但是不知道具体是啥。g是加入的随机因素，t是线性减少的温度因子"><br>最后，在训练时要计算每个encoder的输出token概率分布加和。在推理时只需要选择$P(i|L_e)$最大的decoder。</p><h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><p>&emsp;&emsp;作者使用多个1层或2层的decoders，在三个数据集上进行了<code>one-to-many</code>实验。<br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/3.jpg" alt="缩写词意思"><br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/5.jpg" alt="实验结果1"><br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/6.jpg" alt="实验结果2"></p><ol><li>对于<strong>(EACH)</strong>来说，这种方法在中高资源语言中获得更好的性能，但是在低资源语言中表现很差（与第二行对比）。在高资源语言中表现好是因为可能没有负面的迁移学习干扰，并且模型容量比较大，容易习得特征。在低资源中表现不好，还是表明一两层的decoder没办法学习到鲁棒的表示。</li><li>对于<strong>(RAND)</strong>来说，其实性能有小小的提升，这可能是因为一个语言集合中有相似的语言，迁移学习有用。增加少量语言数量性能还是会增加的，证明decoder端其实有个最多能接受多少语言数的阈值。</li><li>对于<strong>(FAM)</strong>来说，ML50,TED8-Related和TED8-Diverse分别划分了15,4,5个语言族。实验证明确实能够提升性能减少推理时间，尤其是对2层的decoder来说性能更好。相同语言之间的迁移学习对性能提升有很大帮助。</li><li>对于<strong>(EMB)</strong>来说，首先在将多种语言分类时就发现其实划分的结果和语言族划分的结果相同或相近，因此结果也和<strong>FAM</strong>相似。</li><li>对于<strong>(ST)</strong>来说，这种方法既不需要知道语言族，也不需要提前训练好一个模型。从BLEU上看，这种方法也能得到较好的结果，也是有效。</li></ol><h3 id="扩展分析"><a href="#扩展分析" class="headerlink" title="扩展分析"></a>扩展分析</h3><p><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/7.jpg" alt="在TED8-Related和TED8-Diverse数据集上的不同decoders层数实验"></p><ol><li>同样和之前一样有相同的趋势，decoder层数越少解码越快，但是性能越差。</li><li>使用10-2<strong>FAM、EMB</strong>方法在层数较少的情况下和6-6 baseline性能相似，但是解码快了近2倍。</li></ol><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;之前的方法<strong>DSED</strong>在解码速度上有提升，但是在一对多翻译上性能很差，为了尽可能提高这种方法性能，作者提出了<strong>DEMSED</strong>，其中每一个decoder对应一类语言集，作者讨论了不同的对应方法，将相近的语言族对应一个decoder能够达到更快的1.8倍解码速度，其性能还能匹配标准的基线模型。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 机器翻译 </tag>
+            
+            <tag> 多语言机器翻译 </tag>
+            
+            <tag> 自然语言处理 </tag>
+            
+            <tag> 论文阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Improving Zero-Shot Translation by Disentangling Positional Information</title>
+      <link href="/2022/09/29/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/"/>
+      <url>/2022/09/29/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/</url>
+      
+        <content type="html"><![CDATA[<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>&emsp;&emsp;多语言翻译（NMT）在一个单独的模型中学习不同翻译方向的语句对，得到的模型能够直接在未知的翻译方向之间进行翻译。因此对于这种Zero-shot（在没有或很少训练语句对的翻译方向）翻译来说，是很有用的。首先不需要一个中介语言来辅助翻译，减少了一半推理时间和误差传播。其次不要求所有翻译方向具有大量的平行语句对语料，如果要实现N种语言之间互译的话不需要N^2数量级的方向上的语句对。最后对于模型来说，Zero-shot希望模型习得语句的中间表示，这两点对于低资源语言的翻译益处很大。<br>&emsp;&emsp;但是Zero-shot翻译的质量有待大幅提升，先前的工作发现其实标准的Transformer可能并没有真正习得不同语言对之间的翻译关联。在训练的时候学到的是将原句子以某种形式编码，这种形式便利了<strong>有监督情况下的目标语言的翻译</strong>，也就是<strong>编码成的中间表示其实关联着已知目标语言</strong>。但是对于Zero-shot翻译来说，很多翻译方向并不在训练中出现。decoder端的输入分布对于decoder来说是没有见过的，不可避免地造成性能下降。理想情况下，我们希望模型能够习得<strong>language-agnostic</strong>的中间表示，只要是在模型中训练过的target language,不管输入啥源语言都能根据这个中间表示翻译。<br>&emsp;&emsp;<strong>所以，我们似乎有了一个新的方向，就是统一不同语言版本encoder端输出的中间语言表示。</strong>这里来观察一个例子。<br><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/1.jpg" alt="右图是西班牙语,逐词翻译是“一只猫大”"><br>&emsp;&emsp;观察encoder端的输出，<strong>输出向量紧紧关联于原句子对应位置的tokens（以下称为位置关联）</strong>。但是对于同一句话的不同语言版本经encoder输出，我们希望它是尽可能和语言无关的。因此需要encoder端对词语的排序有较大自由度，允许输出向量重排。<br>沿着这条路作者有三点主要贡献：</p><ol><li>实验证明位置关联确实会妨碍zero-shot翻译。移除了encoder layer中间一层的残差连接能够在zero-shot翻译上效果提升。</li><li>提出的模型易集成新语言，使得新语言和之前训练过的语言能够翻译，即使是zero-shot情况下。</li><li>深入分析了模型的中间输出，发现提出的方法有助于创造在token级别和句子级别上语言独立的表示。</li></ol><h2 id="消除位置关联信息"><a href="#消除位置关联信息" class="headerlink" title="消除位置关联信息"></a>消除位置关联信息</h2><p>&emsp;&emsp;虽然Transformer encoder的编码有利于上下文嵌入和序列标注，但是encoder端的输入和输出在位置上仍然具有很强的关联，<strong>没办法做到”any input language, same representation”</strong>。对于不同语言相同语义的句子来说，编码后的序列长度和词序是会变化的。针对位置关联来说，可能的两种原因是<strong>残差连接</strong>和<strong>编码器自注意力对齐</strong>（encoder self-attention alignment）。<br><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/2.jpg" alt="消除位置关联的两种方法"></p><h3 id="修改残差连接"><a href="#修改残差连接" class="headerlink" title="修改残差连接"></a>修改残差连接</h3><p>&emsp;&emsp;在encoder layer中的两个子层都有残差连接，这种残差连接会导致输出和输入对应位置绑定。为了减轻这种影响，<strong>作者只在一层encoder layer中的一个multihead attention layer不使用残差连接</strong>。</p><h3 id="基于位置的自注意力查询"><a href="#基于位置的自注意力查询" class="headerlink" title="基于位置的自注意力查询"></a>基于位置的自注意力查询</h3><p>&emsp;&emsp;之前的实验表明在自注意力层的NxN注意力权重中对角线的权重都是较大的，因此输出中对应位置的输入会占较大部分，造成了输入输出在位置上相关联。从源头看，造成对角线权重较大的原因是<strong>Q,K来源于相同向量，虽然经过不同的投影，但是还是较为相似</strong>。为了减少Q,K相似性，使用一组正弦位置编码代替Q（<strong>sinusoidal positional encodings,为啥用这种操作？</strong>）,并且为了避免和K中就有的位置信息相似（注意encdoer的输入其实是加入位置信息的，这种信息会保留至K）。因此使用特定的波长（wave length），这个波长不同于起始编码加入的位置信息。此外，在得到真正Q的投影偏置中也使用了波长为100的位置编码（positional encoding with wave length 100.）。</p><h3 id="variational-dropout"><a href="#variational-dropout" class="headerlink" title="variational dropout"></a>variational dropout</h3><p>&emsp;&emsp;作者使用variational dropout，和标准的dropout的差别是每层的dropout不是随机的而是固定的。作者认为这种方法能够通过</p><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="训练细节"><a href="#训练细节" class="headerlink" title="训练细节"></a>训练细节</h3><p>&emsp;&emsp;训练数据包括高资源语言和低资源语言，训练翻译方向是<code>X&lt;-&gt;EN</code>，在测试时候是非英语的zero-shot翻译。模型为5层encoder,decoder的Transformer，对于较大的Europarl-full数据集使用8层。<br><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/4.jpg" alt="使用的数据集信息"></p><h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><p><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/3.jpg" alt="其中pivot前四行使用baseline模型，最后一个也是但是训练到收敛而不是早停，+Query意思是两种方法一起用"><br>几点结论：</p><ol><li>在zero-shot翻译上，修改残差连接是很有效的，在Supervised Directions也能和基线模型持平，但是Query的方法就不怎么有效。所以这种<strong>位置关联主要来源于残差连接</strong>。</li><li>观察第2，3行，得到的结论是<strong>训练数据越多样越好</strong>。第2行使用的是多平行句子作为数据集，第3行是没有重叠的数据。<strong>并且在zero-shot翻译上，修改残差连接更能有效利用更多样的数据。</strong></li><li>在zero-shot翻译上，Pivot方法也是非常有效的，和Residual的结果较为接近，但是在计算资源有限的情况下比较难以应用。</li><li>在句子数量较少，语言种类较多(<strong>尤其是lexical overlap较少</strong>)的数据集如PMIndia，修改残差连接的方法在zero-shot上的翻译很差，因此作者结合了variational dropout，发现效果有很大提升。<strong>但相较于Pivot方法来说还是差距很远，8左右。</strong><br><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/5.jpg" alt="variational dropout在数据量较小或者文本重叠较少情况下的增益"><br>&emsp;&emsp;<strong>为了查看模型的扩展性，因此作者加入新的语言</strong>，具体的方法是使用之前的模型在包含“新语言-英语”的数据集上微调，并且在“新语言-非英语语言”进行测试。从结果可以看到，baseline其实过拟合了“新语言-英语”翻译方向，导致在zero-shot翻译方向上很差，作者提出的模型则有更好的泛化性，在原有翻译方向上也不错，在zero-shot上有较大的性能提升。<br><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/6.jpg" alt="加入新的语言"><h3 id="实验分析"><a href="#实验分析" class="headerlink" title="实验分析"></a>实验分析</h3><h4 id="检验位置关联"><a href="#检验位置关联" class="headerlink" title="检验位置关联"></a>检验位置关联</h4>&emsp;&emsp;为了探索Residual方法是否真的减弱了位置关联性，作者训练一个分类器，将encoder输出向量映射至词汇表空间（<strong>Token ID</strong>）或者一句话timesteps空间（<strong>Position ID</strong>），发现Residual的方法确实会降低位置关联程度。再对encoder的每一层输出进行比较(<strong>更直观体现Residual方法</strong>)，发现在使用Residual的层相关性会立刻降低。<br><img src="/img/Improving_Zero-Shot_Translation_by_Disentangling_Positional_Information/7.jpg" alt="位置相关性的探索结果"><h4 id="检验语言独立性"><a href="#检验语言独立性" class="headerlink" title="检验语言独立性"></a>检验语言独立性</h4>&emsp;&emsp;为了探索Residual方法是否产生了语言无关的表示，作者使用<strong>SVCCV,Language Classification Accuracy</strong>两种方法，从token和sentence两种角度分析了不同语言在encoder端的输出是否相似，或者每一层的输出是否相似。（其中SVCCV将输出平均池化然后分析相似度，后者将输出分类到语言类别空间，分的越差说明越相似。）<h4 id="Zero-shot中直接翻译的优势"><a href="#Zero-shot中直接翻译的优势" class="headerlink" title="Zero-shot中直接翻译的优势"></a>Zero-shot中直接翻译的优势</h4>作者探讨了Zero-shot直接翻译相较于Pivot的优势，除了只需要一次翻译外，<strong>Zero-shot的翻译可能更地道，更符合语法。</strong><h4 id="使用固定的-可学习的位置嵌入"><a href="#使用固定的-可学习的位置嵌入" class="headerlink" title="使用固定的/可学习的位置嵌入"></a>使用固定的/可学习的位置嵌入</h4>作者分析了位置嵌入对最后结果的影响，发现作者提出的方法对位置嵌入的形式是鲁棒的。</li></ol><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;作者认为encoder部分混杂了源语言词序的特点，这种位置关联特点影响了跨语言泛化能力，从而在zero-shot上性能差，作者提出了移除残差连接的方法减轻这种位置关联并在zero-shot上取得很好的性能。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 机器翻译 </tag>
+            
+            <tag> 多语言机器翻译 </tag>
+            
+            <tag> 自然语言处理 </tag>
+            
+            <tag> 论文阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Improving Massively Multilingual Neural Machine Translation and Zero-Shot Translation</title>
+      <link href="/2022/09/29/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/"/>
+      <url>/2022/09/29/Improving_Massively_Multilingual_Neural_Machine_Translation_and%20Zero-Shot_Translation/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前人工作"><a href="#前人工作" class="headerlink" title="前人工作"></a>前人工作</h2><ul><li>之前的工作要么对于一对多翻译使用共享的encoder，对于多对多翻译使用特殊的attention机制，对于多对一翻译使用基于字符的输入，这些方法需要为每种语言精心设计encoder/decoder，限制模型扩展性。</li><li>后来有方法使用单一模型完成多语言翻译，但是这种方法将语言转化至同一空间，忽视语言特性。<ul><li>有方法尝试重组参数共享(reorganizing parameter sharing)</li><li>设计语言特异的参数生成器（designing language-specific parameter generators）</li><li>解耦多语言编码（decoupling multilingual word encodings）</li><li>语言聚类（language clustering）</li></ul></li><li>对于off-target的问题，有两种解决方法，一是引入跨语言正则化器（cross regularizers），例如alignment regularizer和consistency regularizer。二是通过回译产生平行语料（backtranslation），或者通过中间语言翻译（Pivot）</li></ul><h2 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h2><ol><li>以一种更加便捷的、端到端的language specific方法，以及深化NMT网络来缓解模型容量问题；</li><li>采用随机在线backtranslation(ROBT)来缓解zero-shot translation中的off-target问题。</li></ol><h2 id="具体提出的方法"><a href="#具体提出的方法" class="headerlink" title="具体提出的方法"></a>具体提出的方法</h2><ol><li>更深的网络模型，使用the depth-scaled initialization method去训练模型。</li><li>(<strong>LALN</strong>)对于每个目标语言，使用前置token作为正则化的偏置<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/1.jpg" alt="language-aware layer normalization(LALN)"></li><li>(<strong>LALT</strong>)对于encoder端的输出，再接一个d*d的投影<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/2.jpg" alt="Language-aware Linear Transformation(LALT)"></li><li>(<strong>ROBt</strong>)首先训练一个多语言模型，再对此模型微调，对于每个batch里的每个平行语句对（x1,y1）来说，随机选取语言集T,将y1翻译到T中，形成新的平行语句对（x2,y1）,(x3,y1)…..再去更新模型参数。<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/3.jpg" alt="Random Online Backtranslation"></li></ol><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="训练设置"><a href="#训练设置" class="headerlink" title="训练设置"></a>训练设置</h3><p>&emsp;&emsp;使用作者提出的<code>OPUS-100</code>训练集。总共包含了100种语言。由于是english-centric的，一共包含了99种language pair，一共有大约55M的训练样本，对于每一种language pair，都有2000条验证、测试数据。<br>另外，在zero-shot translation设置中，总共包含Arabic、Chinese、Dutch、French、German、Russian6个语种，共15个语言对。</p><h4 id="One-to-Many-translation"><a href="#One-to-Many-translation" class="headerlink" title="One-to-Many translation"></a>One-to-Many translation</h4><p>&emsp;&emsp;99个EN-&gt;X语言对上训练，得到的结论:</p><ol><li>LALT/LALN是有效的，表明丰富语言知觉(language awareness)能够减轻模型容量不足的缺点。</li><li>越深的模型越好<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/4.jpg" alt="One-to-Many translation"></li></ol><h4 id="Many-to-Many-translation"><a href="#Many-to-Many-translation" class="headerlink" title="Many-to-Many translation"></a>Many-to-Many translation</h4><p>&emsp;&emsp;使用english-centric的语料共99*2个方向进行训练，再分别在EN-&gt;X、X-&gt;EN上评估。得到的几点结论：</p><ol><li>在EN-&gt;X翻译上，多对多训练设置比一对多训练设置的表现来的差。可能的原因是模型容纳了更多的翻译方向，model capacity问题更明显。（table 2,3的Transformer行）</li><li>在X-&gt;EN翻译上，多对多训练设置比双语基线的表现来的好，说明多对多的训练设置，模型有较好的迁移能力。（table 4的1,2行）</li><li>在多对多翻译设置下。X-&gt;EN的提升要大于EN-&gt;X。这可能因为翻译方向上数据的分布不均，因为一半的数据都是-&gt;EN。</li><li>LALT/LALN更偏向于目标语言的区分，因此对于EN-&gt;X提升大于X-&gt;EN<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/5.jpg" alt="Many-to-Many translation"></li></ol><h4 id="多对多翻译设置对不同资源语言的增益"><a href="#多对多翻译设置对不同资源语言的增益" class="headerlink" title="多对多翻译设置对不同资源语言的增益"></a>多对多翻译设置对不同资源语言的增益</h4><p>&emsp;&emsp;不同语言对的句子数量是不一样的，这会影响到language-aware建模和更深的Transformer翻译。因此作者根据训练数据大小将测试语言对划分为三种形式，High (≥ 0.9M, 45), Low (&lt; 0.1M, 18) and Medium (others, 31)，得到以下结论</p><ol><li>对于低资源语言来说，作者提出的方法在EN-&gt;X的翻译提升大于X-&gt;EN。</li><li>模型越深对于不同资源类型的语言和不同翻译方向上都更好。<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/6.jpg" alt="不同规模训练语料"></li></ol><h4 id="在Zero-shot上的结果"><a href="#在Zero-shot上的结果" class="headerlink" title="在Zero-shot上的结果"></a>在Zero-shot上的结果</h4><p>&emsp;&emsp;之前的工作发现在多语言模型上进行zero-shot翻译也即未在训练集出现的翻译方向上表现很差，作者经过实验得到以下结论：</p><ol><li>模型容量不是表现差的主要原因，增大模型容量的性能提升也很少（第2,6行）</li><li>zero-shot上结果很差的主要原因是off-target问题。</li><li>使用ROBt方法在zero-shot上会有更大的提升，并且off-target问题得到改善。但同时在非zero-shot上也有性能微降（<strong>在其他论文中也发现了这个问题</strong>）<br><img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/7.jpg" alt="在Zero-shot上的结果"></li></ol><h4 id="ROBt的探究"><a href="#ROBt的探究" class="headerlink" title="ROBt的探究"></a>ROBt的探究</h4><ol><li>ROBt能够加快模型收敛，在几千步就完成。<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/8.jpg" alt="ROBt收敛"></li><li>选择ROBt中的语言集合很关键，缩小集合范围能少量提升性能。<img src="/img/Improving_Massively_Multilingual_Neural_Machine_Translation_and Zero-Shot_Translation/9.jpg" alt="集合选择"></li></ol><h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>&emsp;&emsp;作者为了解决多语言模型容量的问题使用了更深的模型架构和语言感知的模型（language-aware），并且提出random online backtranslation algorithm（ROBt）以解决zero-shot中的off-target问题。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 机器翻译 </tag>
+            
+            <tag> 多语言机器翻译 </tag>
+            
+            <tag> 自然语言处理 </tag>
+            
+            <tag> 论文阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Language Tags Matter for Zero-Shot Neural Machine Translation</title>
+      <link href="/2022/09/29/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/"/>
+      <url>/2022/09/29/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/</url>
+      
+        <content type="html"><![CDATA[<h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><p>&emsp;&emsp;增强语义表示的一致性和减轻Off-target问题成为提升zero-shot翻译的两种有效方法，前者希望不同语言的语义表示尽可能接近，后者希望模型翻译的方向不要出错。作者调查了4种流行的LT(language target)，进行系统的分析。<br><img src="/img/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/1.jpg" alt="四种LT"></p><h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h3><p>&emsp;&emsp;IWSLT17，TED talks，Europal v7.对于前两种数据集使用标准Transformer，最后一个数据集使用Transformer-big。学习联合的分词系统，并且一个batch近似有30k source tokens和target tokens.<br><img src="/img/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/3.jpg" alt="数据集"></p><h3 id="实验结果分析"><a href="#实验结果分析" class="headerlink" title="实验结果分析"></a>实验结果分析</h3><p>&emsp;&emsp;T-ENC碾压了其他三种LT,BLEU很高并且off-target问题减少。</p><ol><li>加入TLT有助于zero-shot问题，但在encoder端收益最大。</li><li>加入SLT会干扰zero-shot翻译。</li></ol><p><img src="/img/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/3.jpg" alt="实验结果"></p><h3 id="可视化分析"><a href="#可视化分析" class="headerlink" title="可视化分析"></a>可视化分析</h3><ol><li><p>T-ENC有助于加强语义表示的一致性，在KDE上重叠程度越高，说明表示越一致。<img src="/img/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/4.jpg" alt="KDE"></p></li><li><p>T-ENC能有效减轻off-target问题，可以从对LT的注意力系数得出，T-ENC在解码时受到了更多的关注，S-ENC-T-ENC也是，但是S-ENC会干扰，使得模型困惑。<img src="/img/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/5.jpg" alt="Attention"></p></li><li><p>关注many-to-one和one-to-many设置下encoder端和decoder端输出的相似性。</p><ul><li>在多对一中，不同语言的语义一致性随着层数增加而提升，但在encoder和decoder交界处有突降，这可能是decoder干扰了encoder。其中T-ENC下降最不明显，因此一致性保留得越好。</li><li>在一对多中，语义相似性随着层数增多不断下降，其中T-ENC下降最大，更好地引导模型生成相应语言。<br><img src="/img/Language_Tags_Matter_for_Zero-Shot_Neural_Machine_Translation/6.jpg" alt="layer-wise similarity"></li></ul></li></ol><h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ol><li>不要用SLT,会干扰TLT的作用。</li><li>使用TLT-ENC更有助于生成目标语言和更相近的中间表示。</li></ol>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 机器翻译 </tag>
+            
+            <tag> 多语言机器翻译 </tag>
+            
+            <tag> 自然语言处理 </tag>
+            
+            <tag> 论文阅读 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Alternative Input Signals Ease Transfer in Multilingual Machine Translation</title>
       <link href="/2022/09/19/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/"/>
       <url>/2022/09/19/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/</url>

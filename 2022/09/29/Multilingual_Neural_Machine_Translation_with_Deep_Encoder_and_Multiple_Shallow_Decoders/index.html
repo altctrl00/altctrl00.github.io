@@ -1,0 +1,259 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Multilingual Neural Machine Translation with Deep Encoder and Multiple Shallow Decoders | 樱岛何处有麻衣</title><meta name="keywords" content="机器翻译,多语言机器翻译,自然语言处理,论文阅读"><meta name="author" content="Endorphin"><meta name="copyright" content="Endorphin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="提升一对多翻译速度和准确性的方法：增多decoder个数并减少decoder端层数，再将相近的语言都对应一个decoder。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multilingual Neural Machine Translation with Deep Encoder and Multiple Shallow Decoders">
+<meta property="og:url" content="http://example.com/2022/09/29/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/index.html">
+<meta property="og:site_name" content="樱岛何处有麻衣">
+<meta property="og:description" content="提升一对多翻译速度和准确性的方法：增多decoder个数并减少decoder端层数，再将相近的语言都对应一个decoder。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/7.jpg">
+<meta property="article:published_time" content="2022-09-29T13:00:00.000Z">
+<meta property="article:modified_time" content="2022-10-01T02:22:03.648Z">
+<meta property="article:author" content="Endorphin">
+<meta property="article:tag" content="机器翻译">
+<meta property="article:tag" content="多语言机器翻译">
+<meta property="article:tag" content="自然语言处理">
+<meta property="article:tag" content="论文阅读">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/7.jpg"><link rel="shortcut icon" href="/img/cat.png"><link rel="canonical" href="http://example.com/2022/09/29/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxxxxx"/><meta name="baidu-site-verification" content="xxxxxxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Multilingual Neural Machine Translation with Deep Encoder and Multiple Shallow Decoders',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2022-10-01 10:22:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mouse.css"><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/6.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">樱岛何处有麻衣</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Multilingual Neural Machine Translation with Deep Encoder and Multiple Shallow Decoders</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-09-29T13:00:00.000Z" title="发表于 2022-09-29 21:00:00">2022-09-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-10-01T02:22:03.648Z" title="更新于 2022-10-01 10:22:03">2022-10-01</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Multilingual Neural Machine Translation with Deep Encoder and Multiple Shallow Decoders"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>&emsp;&emsp;目前很多多语言翻译的模型使用的是<code>encoder-decoder</code>模型，如果加深两端的网络深度可以提高翻译的性能。举例子来说，在<code>many-to-one</code>的翻译设置中增加<code>encoder</code>的深度会提高翻译质量，可能的解释是<strong>encoder</strong>端的参数体量大了能记住更多的源语言特征。但是对<code>one-to-many</code>来说，增加<strong>decoder</strong>端的参数会使得推理变慢。因此在这里就会有一个网络深度和模型性能、推理速度的权衡设计。之前的论文<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2006.10369v1">Deep encoder, shallow decoder: Reevaluating the speed-quality tradeoff in machine translation.</a>提出了一种基于Transformer的模型——<strong>a deep encoder and a shallow decoder (DESD)</strong>。但这在<code>one-to-many</code>中会使得性能下降，可能是因为decoder端参数不足以为多个目标语言建模。因此为了能又快又准翻译，作者使用<strong>multiple shallow decoders</strong>，每个decoder对应于一类目标语言。其中作者探索了多种decoder-目标语言对应关系。</p>
+<h3 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h3><ol>
+<li>设置多种不同层数的<strong>DESD</strong>模型方案，在双语翻译和多语言翻译任务中权衡比较翻译速度(tokens/每秒)和准确性（BLEU）。</li>
+<li>在<code>many-to-one</code>翻译中，<strong>多语言DESD</strong>模型以<strong>1.8x</strong>更快的平均推理加速比得到与基线模型同等的表现（模型参数量相当）</li>
+<li>在<code>one-to-many</code>翻译中，提出了<strong>shared encoder and multiple shallow decoders(DEMSD)</strong>，得到<strong>1.8x</strong>更快的平均推理加速比，并且翻译质量更好。</li>
+</ol>
+<h2 id="多语言DESD模型的翻译速度和性能权衡"><a href="#多语言DESD模型的翻译速度和性能权衡" class="headerlink" title="多语言DESD模型的翻译速度和性能权衡"></a>多语言DESD模型的翻译速度和性能权衡</h2><h3 id="语料集"><a href="#语料集" class="headerlink" title="语料集"></a>语料集</h3><ol>
+<li>ML50，49种语言&lt;-&gt;英语，两亿句子对。</li>
+<li>TED8-Related，4种低资源语言，4种高资源语言。其中可以分为4个语言族，每个族2种语言</li>
+<li>TED8-Diverse，8种语言，不考虑语言之间相关性。<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/1.jpg" alt="在三个数据集上的speed-quality trade-off,在三个数据集上训练过程相同"></li>
+<li><strong>多于多对一翻译来说，减少了decoder端的层数其实对性能没有多大影响。这就说明其实对于decoder端，建模学习一种目标语言所需要参数量是很少的，也有可能是因为deep decoder更好地学习到了源语言，给出了更鲁棒的中间表示。</strong></li>
+<li><strong>对于一对多翻译来说，当decoder端层数减少时性能会有明显下降。尤其是只有一两层时，在三个数据集上都是如此的趋势。这说明decoder端的参数量要和目标语言数量匹配（好奇1-11，2-10这样的层会是怎么样的效果）</strong></li>
+<li>一对多翻译的结果其实都是远不如多对一，这可能和参数量无关，而是需要一种更有效的模型架构将一映射到多。（个人看法）</li>
+</ol>
+<h2 id="Deep-Encoder-and-Multiple-Shallow-Decoders（DEMSD）"><a href="#Deep-Encoder-and-Multiple-Shallow-Decoders（DEMSD）" class="headerlink" title="Deep Encoder and Multiple Shallow Decoders（DEMSD）"></a>Deep Encoder and Multiple Shallow Decoders（DEMSD）</h2><p>&emsp;&emsp;既要保持推理速度比较快又要性能比较高的话，前者一定要求decoder端层数少，后者可以减少decoder端所要表示的语言数量。<strong>有一种方法就是对于不同语言集对应一个shallow decoder</strong>。作者讨论了以下几种对应方法：</p>
+<ol>
+<li>最简单的放法就是每种语言一个decoder，<strong>(EACH)</strong></li>
+<li>随机语言集合划分到一个decoder，每个decoder的语言集合大小相同，作者随机取三次求平均。<strong>(RAND)</strong></li>
+<li>根据语言特征，每种语系一个decoder。<strong>（FAM）</strong></li>
+<li>使用经典前置token的方法，将训练好的模型前置token抽取出来，每个token对应一种语言，根据token将语言分类(<strong>聚类？</strong>)，然后为每一类语言分配一个decoder。<strong>（EMB）</strong></li>
+<li>上一种方法的缺点是需要预训练一个模型，然后再找这种对应关系，比较繁琐。希望寻找一种方法能够再训练过程中自动分配。<strong>(ST)</strong></li>
+</ol>
+<p>&emsp;&emsp;第5点的数学说明：在给定一个共享的encocder,$E$和N个decoders,$D=[D_1,D_2,…,D_N]$。对于一个源语言$L$，模型要先找到对应的一个decoder,$D_i$。再通过这个解码器得到解码预测的句子。整体的概率公式为$\log p(y|x,E,D_i)$,$y,x$分别是输出输入的句子。那么怎么找到对应的序号$i$呢？通过对语言$L$对应在模型中的具体向量$L_e$和decoder的条件概率建模。也即对于给定$L_e$，选择条件概率最大的decoder。公式为$i={\arg\max}_j\ p(j|L_e)$。希望模型能够学习到给定$L_e$，每个decoder的概率分布。但是因为argmax目前的形式是不可微的，也就无法求导更新参数。因此使用<code>Gumble-Softmax</code>作为argmax的一种可微形式。<br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/2.jpg" alt="Gimble-Softmax具体形式，其中l是已经对数化了的，但是不知道具体是啥。g是加入的随机因素，t是线性减少的温度因子"><br>最后，在训练时要计算每个encoder的输出token概率分布加和。在推理时只需要选择$P(i|L_e)$最大的decoder。</p>
+<h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><p>&emsp;&emsp;作者使用多个1层或2层的decoders，在三个数据集上进行了<code>one-to-many</code>实验。<br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/3.jpg" alt="缩写词意思"><br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/5.jpg" alt="实验结果1"><br><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/6.jpg" alt="实验结果2"></p>
+<ol>
+<li>对于<strong>(EACH)</strong>来说，这种方法在中高资源语言中获得更好的性能，但是在低资源语言中表现很差（与第二行对比）。在高资源语言中表现好是因为可能没有负面的迁移学习干扰，并且模型容量比较大，容易习得特征。在低资源中表现不好，还是表明一两层的decoder没办法学习到鲁棒的表示。</li>
+<li>对于<strong>(RAND)</strong>来说，其实性能有小小的提升，这可能是因为一个语言集合中有相似的语言，迁移学习有用。增加少量语言数量性能还是会增加的，证明decoder端其实有个最多能接受多少语言数的阈值。</li>
+<li>对于<strong>(FAM)</strong>来说，ML50,TED8-Related和TED8-Diverse分别划分了15,4,5个语言族。实验证明确实能够提升性能减少推理时间，尤其是对2层的decoder来说性能更好。相同语言之间的迁移学习对性能提升有很大帮助。</li>
+<li>对于<strong>(EMB)</strong>来说，首先在将多种语言分类时就发现其实划分的结果和语言族划分的结果相同或相近，因此结果也和<strong>FAM</strong>相似。</li>
+<li>对于<strong>(ST)</strong>来说，这种方法既不需要知道语言族，也不需要提前训练好一个模型。从BLEU上看，这种方法也能得到较好的结果，也是有效。</li>
+</ol>
+<h3 id="扩展分析"><a href="#扩展分析" class="headerlink" title="扩展分析"></a>扩展分析</h3><p><img src="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/7.jpg" alt="在TED8-Related和TED8-Diverse数据集上的不同decoders层数实验"></p>
+<ol>
+<li>同样和之前一样有相同的趋势，decoder层数越少解码越快，但是性能越差。</li>
+<li>使用10-2<strong>FAM、EMB</strong>方法在层数较少的情况下和6-6 baseline性能相似，但是解码快了近2倍。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;之前的方法<strong>DSED</strong>在解码速度上有提升，但是在一对多翻译上性能很差，为了尽可能提高这种方法性能，作者提出了<strong>DEMSED</strong>，其中每一个decoder对应一类语言集，作者讨论了不同的对应方法，将相近的语言族对应一个decoder能够达到更快的1.8倍解码速度，其性能还能匹配标准的基线模型。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Endorphin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/09/29/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/">http://example.com/2022/09/29/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">樱岛何处有麻衣</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91/">机器翻译</a><a class="post-meta__tags" href="/tags/%E5%A4%9A%E8%AF%AD%E8%A8%80%E6%9C%BA%E5%99%A8%E7%BF%BB%E8%AF%91/">多语言机器翻译</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><a class="post-meta__tags" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a></div><div class="post_share"><div class="social-share" data-image="/img/Multilingual_Neural_Machine_Translation_with_Deep_Encoder_and_Multiple_Shallow_Decoders/7.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.JPG" target="_blank"><img class="post-qr-code-img" src="/img/alipay.JPG" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/09/19/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/" title="Alternative Input Signals Ease Transfer in Multilingual Machine Translation"><img class="cover" src="/img/Alternative_Input_Signals_Ease_Transfer_in_Multilingual_Machine_Translation/1.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-19</div><div class="title">Alternative Input Signals Ease Transfer in Multilingual Machine Translation</div></div></a></div><div><a href="/2022/09/19/Pre-Trained_Multilingual_Sequence-to-Sequence_Models_A_Hope_for_Low-Resource_Language_Translation/" title="Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?"><img class="cover" src="/img/cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-19</div><div class="title">Pre-Trained Multilingual Sequence-to-Sequence Models: A Hope for Low-Resource Language Translation?</div></div></a></div><div><a href="/2022/09/19/Breaking_Down_Multilingual_Machine_Translation/" title="Breaking Down Multilingual Machine Translation"><img class="cover" src="/img/cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-19</div><div class="title">Breaking Down Multilingual Machine Translation</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%B4%A1%E7%8C%AE"><span class="toc-number">1.1.</span> <span class="toc-text">主要贡献</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E8%AF%AD%E8%A8%80DESD%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%BF%BB%E8%AF%91%E9%80%9F%E5%BA%A6%E5%92%8C%E6%80%A7%E8%83%BD%E6%9D%83%E8%A1%A1"><span class="toc-number">2.</span> <span class="toc-text">多语言DESD模型的翻译速度和性能权衡</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AD%E6%96%99%E9%9B%86"><span class="toc-number">2.1.</span> <span class="toc-text">语料集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E6%9E%9C"><span class="toc-number">2.2.</span> <span class="toc-text">结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Deep-Encoder-and-Multiple-Shallow-Decoders%EF%BC%88DEMSD%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">Deep Encoder and Multiple Shallow Decoders（DEMSD）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="toc-number">3.1.</span> <span class="toc-text">实验结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E5%88%86%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">扩展分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/img/6.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 By Endorphin</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><script id="canvas_nest" defer="defer" color="254,143,143" opacity="1" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":190,"height":380,"hOffset":-8,"vOffset":-14},"mobile":{"show":true},"react":{"opacity":0.9},"log":false});</script></body></html>
